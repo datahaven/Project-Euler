@@ -1,0 +1,257 @@
+
+For Euler 47
+
+Unique prime factors for a number:
+
+~. q:644
+2 7 23
+
+Count of unique prime factors
+$  ~. q:644
+3
+
+NB. Global function to do this count.
+NB. $ is not same as #
+upf =: 3 : 0
+# ~. q: y
+)
+
+upf 644
+3
+
+upf "0 (644 645 646)
+3 3 3
+
+Which numbers have 3 prime factors?
+   3 = upf "0 (643 644 645 646)
+
+How to select only the ones we want
+0 1 1 1 # 643 644 645 646
+644 645 646
+
+NB. Selects all numbers (from 1 to 20) that have two prime factors
+(2 = upf "0 (1+i.20)) # (1+i.20)
+
+Rewritten as a fork:
+((2 = upf "0) # ]) 1+i.20
+
+This bit was useful for the following part about differences:
+file:///C:/Users/Adrian/j64-602/help/learning/17.htm
+
+NB. Second minus first (actually Last minus First)
+ smf =: {: - {.
+
+Difference:
+   diff =: 2 & (smf\)
+
+diff ((2 = upf "0) # ]) 1+i.20
+4 2 2 1 3 2
+
+NB. Example with 3, starting near where we know
+NB. there's an answer
+diff ((3 = upf "0) # ]) 640+i.50
+2 1 1 4 1 3 4 5 2 1 4 2 6 2 2 2
+Now need to find position of first 1 1 in list
+
+NB. Is every item in list equal to 1?
+   */ 1 = 1 1 1
+1
+   */ 1 = 1 0 1
+0
+Do this for each 2 length infix.
+(3 length for final problem)
+
+NB. Equals One
+eqo =: 3 : 0
+y = 1
+)
+
+NB. Where t is the result of "diff ...."
+This gives the prefix number of all of the pairs of ones
+2 (*./ @ eqo) \ t
+0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+NB. I'm sure I need a slightly different definition for upf
+so that I don't need the "0
+(upf "0) 640 + i.50
+2 1 3 1 3 3 3 1 2 2 3 3 2 1 3 2 2 2 3 1 4
+
+t =: (upf "0) 640 + i.50
+
+3 (*./ @ eqt) \ t
+0 0 0 0 1 0 0 0 0 ...
+
+or combine t into fn:
+3 (*./ @ eqt) \ (upf "0) 640 + i.50
+same answer
+
+b =: above fn
+
+Selects our three numbers in a box
+b # 3 < \ 640+i.50
+
+and 
+
+> b # 3 < \ 640+i.50
+opens the box
+644 645 646
+
+ box3 =: 3 : 0
+3 < \ y
+)
+
+(( 3 (*./ @ eqt) \ (upf "0) ) # box3 ) 640+i.50
+
+
+> (( 3 (*./ @ eqt) \ (upf "0) ) # box3 ) >: i.700
+644 645 646
+
+Now for the FOUR version!
+
+ box4 =: 3 : 0
+4 < \ y
+)
+
+ eq4 =: 3 : 0
+y = 4
+)
+
+ > {. (( 4 (*./ @ eq4) \ (upf "0) ) # box4 ) >: i.1000000
+134043 134044 134045 134046
+
+{. selects only first result and > unboxes it.
+I thought this would mean calculation would stop after first 
+result but apparently not as it takes longer for 1000000 than
+it does for 200000
+
+This version has */ which is what I intended, whereas *./
+that I wrote gives least common multiples
+> {. (( 4 (*/ @ eq4) \ (upf "0) ) # box4 ) >: i.1000000
+
+Using what I found out about & to get rid of eq4
+
+> {. (( 4 (*/ @ (4&=)) \ (upf "0) ) # box4 ) >: i.1000000
+
+====
+
+A "pro" answer from olegyk:
+
+d4=: (4: *./@:= #@~.@q:)"1
+{.{.(#~ d4) 4]\3+i.1000000
+134043 
+
+My analysis suggests that d4 returns 0 or 1 depending whether
+or not the input number has four prime factors. I guessed
+that by trying it out!
+Although it actually returns 0 or 1 depending whether all
+numbers passed to it have four prime factors:
+   d4 134043 134044 134045 134046 134046
+1
+   d4 134043 134044 134045 134046 134047
+0
+
+
+Breaking it down:
+#@~.@q:
+
+#@~.@q: 644 645 646 647
+3 3 3 1
+
+Because @ composes the functions together. So in C it would be
+# (~. (q: (x)))
+
+= is quite interesting. It is the "self-classify" function.
+It is returning a row for each unique item in its input with
+1's and 0's for every unique item. ie:
+   = 4 3 4 2
+1 0 1 0
+0 1 0 0
+0 0 0 1
+
+Looking at second line:
+  4]\3+i.10
+3  4  5  6
+4  5  6  7
+5  6  7  8
+6  7  8  9
+7  8  9 10
+8  9 10 11
+9 10 11 12
+ie applies the identity fn [ using \.
+Just like my 4 < \ y function above, only the numbers go into
+table rows instead of boxes.
+
+eqa =: 3 : 0
+y = 'a'
+)
+
+(#~ eqa) 'adrian'
+
+So, ~ swaps around the arguments x and y in x u y
+x u~ y becomes y u x
+and (f g) is a hook where
+(f g) y = y f (g y)
+
+(#~ eqa) 'adrian' = 'adrian' #~ (eqa 'adrian')
+                  = (eqa 'adrian') # 'adrian'
+
+So, (#~ d4) applies the predicate d4 to each row, then
+selects the rows that match.
+
+Pretty handy!
+
+Can use & to get rid of eqa:
+(#~'a'&=) 'adrian'
+aa
+
+Then {. selects the first row that matchs and {. selects
+the first number of that first row
+
+==========
+
+Another "pro" J answer:
+
+Solution in J: dpf is a dyadic verb that returns 1 if 
+the number of unique prime factors of the right argument 
+is equal to the left argument. fn uses dpf and simply 
+iterates until it finds a solution - its right argument 
+is the starting point and left argument is the required 
+number of unique prime factors. Runs in a couple of seconds.
+
+
+dpf =. = #@~.@q:
+fn =. 4 : 0
+	i =. y
+	while. -. *./ (dpf i"_+i.) x do. i=.>:i end.
+)
+4 fn 644
+
+Hmmm ... this one looks more like C to me!
+
+===
+
+1+{.I.4*/\4=#@~.@q:1+i.1e6
+
+#@~.@q:640+i.10 is no. of unique factors in the int list on right
+
+The ones that equal three:
+3=#@~.@q:640+i.10
+0 0 1 0 1 1 1 0 0 0
+
+Multiply together in groups of three
+3*/\3=#@~.@q:640+i.10
+0 0 0 0 1 0 0 0
+
+I. takes the integer(s) that matches that index.
+{. Takes the first int
+Integers start from 0, so 1+ adds one to get the right answer
+
+====
+
+mytab =. (~.(((+/|:(~.@q: (2+i.200000)) > 0) = 4) * (2+i.200000)))
+   mytab2 =. ~.(1 = (mytab,0) - (0,mytab) ) * (mytab,0)
+   mytab3 =. ~.(1 = (mytab2,0) - (0,mytab2) ) * (mytab2,0)
+   mytab4 =. ~.(1 = (mytab3,0) - (0,mytab3) ) * (mytab3,0)
+   ({:mytab4) - 3
+134043
+

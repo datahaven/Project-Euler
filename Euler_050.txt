@@ -1,0 +1,105 @@
+Euler 50
+
+Another one for J, I think.
+
+The prime 41, can be written as the sum of six consecutive primes:
+41 = 2 + 3 + 5 + 7 + 11 + 13
+
+This is the longest sum of consecutive primes that adds 
+to a prime below one-hundred.
+
+The longest sum of consecutive primes below one-thousand 
+that adds to a prime, contains 21 terms, and is equal to 953.
+
+Which prime, below one-million, can be written as the sum of 
+the most consecutive primes?
+
+===
+
+First off, I'm finding the millionth prime:
+
+>./ p: i.80000
+1020379 - a rough answer using greater than.
+
+{: p: i.80000
+1020379 - getting the tail of the list
+
+Proper way to do it:
+{.I.1000000<p:i.500000
+78498 th prime is > 1000000
+
+p: 78498
+1000003
+
+NB. If I don't want to hard code 78498, here's the fn instead.
+millionthPrimeIndex =: {.I.1000000<p:i.100000
+
+So, I need to check all of p: i.78498
+
+Actually
+_1 p: 1000000
+returns the number of primes less than 1000000, which is 78498
+
+isprime(1000003) is
+1 p: 1000003
+
+6[\p:i.10 makes a table of sets of six primes
+ 2  3  5  7 11 13
+ 3  5  7 11 13 17
+ 5  7 11 13 17 19
+ 7 11 13 17 19 23
+11 13 17 19 23 29
+
+(+/"1) before the 6... sums up each row of the table
+41 56 72 90 112
+
+Then 1 p: returns a 1 for each sum that is prime
+1 p: (+/"1)6[\p:i.10 
+
++./ in front of that ORs (ie GCD 0,1) the results together, so we get a 
+1 if at least one of the sums is prime
+NB Also need to check the sum is less than 1000000
+
+
+Two conditions - is prime and is less than 100:
+
+   (100&>) 41 56 90 112 113 90
+1 1 1 0 0 1
+   (1&p:) 41 56 90 112 113 90
+1 0 0 0 1 0
+
+Need to AND these together a *. b, then use +./ to OR the resulting list to
+get our final yes/no answer for n=6
+
+That's this
++./ ((100&>)(*.)(1& p:))  (+/"1)6[\p:i.10
+less a few superfluous brackets:
+
++./ (100&>*.(1& p:))  (+/"1)6[\p:i.5
+
++./ (100&>*.1& p:)  (+/"1)6[\p:i.6
+
+nLengthPrimeSumExists =: 3 : 0
++./ (1000000&>*.1& p:)  (+/"1)y[\p:i.78498
+nLengthPrimeSumExists ("0) i.10
+
+{: I. nLengthPrimeSumExists ("0) i.1000
+543 - Takes AGES. Five mins, or so.
+
+Need to find out what it actually IS
+a =: (1000000&>*.1& p:) (+/"1)543[\p:i.78498
+0 0 0 1 0 0 0 0 0 0 0 0 0 0
+b =: (+/"1)543[\p:i.78498
+985878 989799 993725 997651 1001587
+
+ie a # b which is 997651 is the correct answer
+
+
+====
+
+olegyk's pro answer:
+
+P=. p: i.&.(-&71274) 78498
+t=. (+/\)"1 p:50(+/&i.)546
+{:(#~ e.&P)({~([:(i. >./)(+./ * i:&1)@(e.&P)"1)) t
+997651 
