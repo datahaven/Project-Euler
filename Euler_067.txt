@@ -1,0 +1,3 @@
+Project Euler 067
+
+See code for Euler 013 which also works for 067

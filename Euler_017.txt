@@ -1,0 +1,49 @@
+If the numbers 1 to 5 are written out in words:
+ one, two, three, four, five, then there are 3 + 3 + 5 + 4 + 4 = 19 letters used in total.
+
+If all the numbers from 1 to 1000 (one thousand) inclusive were written out in words, how 
+many letters would be used?
+
+NOTE: Do not count spaces or hyphens. For example, 
+342 (three hundred and forty-two) contains 23 letters and 115 (one hundred and fifteen) 
+contains 20 letters. The use of "and" when writing out numbers is in compliance with British usage.
+
+From_1_9 =. #'onetwothreefourfivesixseveneightnine'
+From_10_19 =. #'teneleventwelvethirteenfourteenfifteensixteenseventeeneighteennineteen'
+From_20_29 =. From_1_9 + 10 * #'twenty'
+From_30_39 =. From_1_9 + 10 * #'thirty'
+From_40_49 =. From_1_9 + 10 * #'forty'
+From_50_59 =. From_1_9 + 10 * #'fifty'
+From_60_69 =. From_1_9 + 10 * #'sixty'
+From_70_79 =. From_1_9 + 10 * #'seventy'
+From_80_89 =. From_1_9 + 10 * #'eighty'
+From_90_99 =. From_1_9 + 10 * #'ninety'
+From_100   =. #'onehundred'
+From_1_99 =. From_1_9 + From_10_19 + From_20_29 + From_30_39 + From_40_49 + From_50_59
+From_1_99 =. From_1_99 + From_60_69 + From_70_79 + From_80_89 + From_90_99
+From_101_199 =. (99 * From_100 + (#'and')) + From_1_99
+From_200_299 =. (#'twohundred') + ((#'twohundredand')* 99) + From_1_99
+From_300_399 =. (#'threehundred') + ((#'threehundredand')* 99) + From_1_99
+From_400_499 =. (#'fourhundred') + ((#'fourhundredand')* 99) + From_1_99
+From_500_599 =. (#'fivehundred') + ((#'fivehundredand')* 99) + From_1_99
+From_600_699 =. (#'sixhundred') + ((#'sixhundredand')* 99) + From_1_99
+From_700_799 =. (#'sevenhundred') + ((#'sevenhundredand')* 99) + From_1_99
+From_800_899 =. (#'eighthundred') + ((#'eighthundredand')* 99) + From_1_99
+From_900_999 =. (#'ninehundred') + ((#'ninehundredand')* 99) + From_1_99
+From_1_1000 =. (#'onethousand') + From_1_99 + From_100 + From_101_199
+From_1_1000 =. From_1_1000 + From_200_299 + From_300_399 + From_400_499 + From_500_599
+From_1_1000 =. From_1_1000 + From_600_699 + From_700_799 + From_800_899 + From_900_999
+From_1_1000
+21124
+
+"Pro" version from forum:
+ones =. ;:'one two three four five six seven eight nine'
+teens=. ;:'eleven twelve thirteen fourteen fifteen sixteen 
+             seventeen eighteen nineteen'
+tens =. ;:'twenty thirty forty fifty sixty seventy eighty
+             ninety'
+w99  =. ones,(<'ten'),teens,,tens,&.>/'';' ',&.>ones
+ 
+w=. w99,,(ones,&.><' hundred'),&.>/'';(<' and '),&.>w99
+w=. w,<'one thousand'
+# ' ' -.~ ; w
