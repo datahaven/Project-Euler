@@ -1,0 +1,50 @@
+Project Euler 078
+Adrian Dale
+08/06/2011
+
+You are the 3958th person to have solved this problem.
+
+Answer is 55374
+
+Found the answer to this almost by accident.
+Had a guess that answer was something to do with nCr and was looking up
+how to calculate that in PARI/GP when I found it has a function
+called numbpart(). That turned out to produce the correct answer
+for the example given.
+
+I tried a few more out and got the sequence for OEIS which told me
+it was the partition number sequence.
+
+I knocked up some very quick pari/gp code:
+
+for(i=1,1000000000,if (numbpart(i)%1000000 == 0, print(i)))
+
+Took approx 2mins to find the answer, which happens to be this:
+
+363253009254357859308323315773967616467158
+36173633893227071086460709268608053489
+54173140454353766843899117068074527215
+915449374061538582320215816763527625055455
+534211585542459892015903541304481124508219
+73350979535709118842524107301749077847
+62924663654000000
+
+Would probably have learned more if I'd implemented the fn myself
+
+I think this function will come in handy for another problem - the one
+about how many ways to sum up to 100.
+
+===
+
+Project 076
+
+You are the 7959th person to have solved this problem.
+
+Got my fastest ever Project Euler solution - approx 15 seconds to come
+up with the answer.
+Typed numbpart(100)-1 (to allow for not including the number itself)
+into pari/gp and got 190569291
+
+Again, a bit of a cheat - Euler invented a generating function for this
+problem. I wonder if it would work for some of the counting problems?
+eg splitting the square up - I gave up on that one!
