@@ -1,0 +1,227 @@
+Project 23
+
+http://projecteuler.net/index.php?section=problems&id=23
+
+A perfect number is a number for which the sum of its proper divisors 
+is exactly equal to the number. For example, the sum of the proper divisors 
+of 28 would be 1 + 2 + 4 + 7 + 14 = 28, which means that 28 is a perfect 
+number.
+
+A number n is called deficient if the sum of its proper divisors is less 
+than n and it is called abundant if this sum exceeds n.
+
+As 12 is the smallest abundant number, 1 + 2 + 3 + 4 + 6 = 16, the smallest
+number that can be written as the sum of two abundant numbers is 24. 
+By mathematical analysis, it can be shown that all integers greater 
+than 28123 can be written as the sum of two abundant numbers. 
+However, this upper limit cannot be reduced any further by analysis 
+even though it is known that the greatest number that cannot be expressed 
+as the sum of two abundant numbers is less than this limit.
+
+Find the sum of all the positive integers which cannot be written as 
+the sum of two abundant numbers.
+
+=============
+
+I'm going to start this by writing a function to list all of the divisors
+of a given number.
+
+I think that I get this if I multiply every combination of the prime
+factors by each other and take out the duplicates
+
+Binary numbers from 0 to 15
+#: i.16
+
+Prime factors of 28, including 1
+1,q:28
+
+Sixteen rows of 1 2 2 7
+16 4 $ 1 2 2 7
+
+Selects the rows but also pads back out with zeros which I don't want
+(#:1+i.15) #"1  (15 4 $ 1 2 2 7)
+
+Binary numbers from 0 to 15, padded because of unequal rank:
+#: i.16
+
+In this version I add the padding
+4{./"1#: i.16
+Need my version if we're doing them one at a time, but then
+they come out right padded, not left. I guess my fn isn't doing what I
+hoped.
+
+rhs =: 3 : 0
+a =. 1,q: y
+c =. #a
+b =. (2^c)-1
+a"0 i.b
+)
+
+/:~ ~. (#:1+i.15) m1"1 rhs 28
+1 2 4 7 14 28
+or
+}:/:~ ~. (#:1+i.15) m1"1 rhs 28
+1 2 4 7 14
+
+nub after sort
+ }:~./:~(#:1+i.15)    m1"1 rhs 28
+1 2 4 7 14
+
+NB. Multiples the given combination of prime factors
+NB. to produce a divisor
+NB. eq 0 1 0 1 # 1 2 2 7 gives 14
+m1 =: 4 : '*/ x #"1 y'
+
+NB. Produces proper divisors for y
+m2 =: 3 : 0
+a =. 1,q:y
+b =. #a
+c =. (2^b)-1
+d =. a"0 i.c
+<}:~./:~(#:1+i.c) m1"1 d
+)
+
+Puts them in a box so that we can get output like:
+ m2 ("0) 28 29 30
++----------------------------+
+¦1 2 4 7 14¦1¦1 2 3 5 6 10 15¦
++----------------------------+
+
+Now we can use 'each' (ie &.>) to do something to each box
+
+NB. isAbundant y
+isA =: 3 : 'y< > +/ &.> m2 ("0) y'
+
+All abundant numbers between 1 and 28123
+(#~ isA) 1+i.28123
+
+How many are there?
+#  (#~ isA) 1+i.28123
+6965
+
+allAb =: (#~ isA) 1+i.28123
+
+NB. Table of the numbers added to eachother
+allAb +/ allAb
+
+Join them all together
+, allAb +/ allAb
+
+Remove the duplicates
+
+~. , allAb +/ allAb
+
+This should give us all of the integers that are the sum of
+two abundant numbers.
+
+allAbSums =: ~. , allAb +/ allAb
+
+Keep only the sums less than 28124
+
+allAbSums =: (#~(<&28124)) ~. , allAb +/ allAb
+
+Note we can rewrite allAb +/ allAb as allAb +/~
+
+We need the ones that aren't the sum of two abundant numbers
+1+i.28123 e. allAbSums # 1+i.28123
+
+(-.((1+i.28123)e.allAbSums)) # (1+i.28123)
+
+Sum them up
++/ (-.((1+i.28123)e.allAbSums)) # (1+i.28123)
+
+We have a winner! 4179871
+
+m3 =: 3 : '(-.(y e.allAbSums)) # y'
+
++/ m3 1+i.28123
+
+========================================================
+
+Here's the "pro" answer from smarty pants olegyk:
+
+ds=: +/@:~.@(*/@#~ #:@i.@<:@(2&^)@#)@q:
+   +/(1+i.28123)-.~.,+/~(#~(<ds))12+i.28120
+4179871
+
+Breaking it down, his algorithm looks like mine:
+
+(*/@#~ #:@i.@<:@(2&^)@#) (1 2 2 7)
+gives 1 7 2 14 2 14 4 28 1 7 2 14 2 14 4
+
+( #: @ i. @ <: @ (2&^) @ #) (1 2 2 7)
+            ==========   =
+            Does 2^ number of items passed in
+       ==
+       Produces 0 to n of the above result
+  == converts each one to binary
+
+Bits I see in this bit:
+ +/(1+i.28123)-.~.,+/~(#~(<ds))12+i.28120
+                  ====
+                  Joining all the bits of a table together, like I did.
+                     
+===========================================
+
+pdv=: i.([#~0:=|)] NB. proper divisors
+abup =: 3 : 'y. <  +/ pdv y.' NB. abundant number?
+an =:   n#~a =. abup"0 n=. i. 30000 NB. 7427 of them
+ansum =: ~. , +/~an  NB. all unique sums of an 
+nums =. >:i. 28125  NB. 1 to 28125..more than enough
+notan =: (-.(nums e. ansum))#nums NB. not sum of two an
++/notan  NB. sum list (ends with 20161)
+4179871
+
+Same as mine, apart from amazing pdv that I'm struggling to figure out.
+I know roughly that it divides y by 0 to y and sees if remainder is zero,
+but can't see how the syntax says that.
+
+([#~0:=|) is a dyad that returns the number if it divides
+eg 7 ([#~0:=|) 28
+gives 7
+
+] means that we always return the number on its right
+
+(i.28) ([#~0:=|)] 28
+1 2 4 7 14
+
+ 3 (0:=|) 1 2 3 4 5 6
+0 0 1 0 0 1
+
+I think it is a fork within a fork within a fork:
+
+ pdv
++-----------------------+
+¦  ¦+----------------+¦ ¦
+¦  ¦¦ ¦+---+¦+------+¦¦ ¦
+¦i.¦¦[¦¦#¦~¦¦¦0:¦=¦|¦¦¦]¦
+¦  ¦¦ ¦+---+¦+------+¦¦ ¦
+¦  ¦+----------------+¦ ¦
++-----------------------+
+
+================================================
+NB. ab is the set of all abundant numbers below 28123
+ab =. (] #~ +/@:~.@(*/@#~ #:@:i.@<:@(2&^)@#)@q: > ]) 2+i.28122
++/ (1+i.28123) -. ,/+/~ ab
+
+=====================================================
+
+dp        =: <:@] %~ [: <: ] ^ >:@[                  NB. Sum of factors of prime power
+div       =: ([: */ +/"1@= dp ~.)@q:                 NB. Divisor funtion
+rdiv      =: div - ]                                 NB. Restricted divisor function
+abundants =: ( ( rdiv > ] ) # ] ) >:i.28123          NB. Abundant numbers
+abu2      =: /:~ (<:&28123 # ] ) ~. , +/~ abundants  NB. integer that are sum of two abundant numbers
+
+( +/ >:i.28123 ) - ( +/ abu2 )
+4179871
+
+===================================================
+Here's my effort in J. Please be kind - I'm only new to the language. I used the abundant library to help me here:
+[hide code]
+
+&**abund[Qu!"__Im)+=<2##!"<%>
+
+Basically it checks for abundance and then sums itself if it does not match with a sum of abundance. Took about 8 nanoseconds.
+
+
+
