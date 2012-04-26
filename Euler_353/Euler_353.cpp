@@ -45,7 +45,7 @@ typedef tuple<int,int,int> Coord;
 // Nice way to output coordinates
 ostream &operator<<(ostream &out, const Coord &a)
 {
-	// Note funky new tuple accessing syntax!
+	// Note weird tuple accessing syntax!
 	out << "(" << get<0>(a) << "," << get<1>(a) << "," << get<2>(a) << ")";
 	return out;
 }
@@ -92,37 +92,14 @@ int getLatticePoints()
 			int z = static_cast<int>(sqrt(static_cast<double>(r2-x2y2))/*+0.5*/);
 			if (z*z == c2)
 			{
-
-#if 0
-				// Only produces top quadrant
-				Coord a = make_tuple(x,y,z);
-				LP.push_back(a);
-				if (y!=x)
-				{
-					Coord b = make_tuple(y,x,z);
-					LP.push_back(b);
-				}
-#endif
-				// Try whole sphere - the sort/unique will
-				// handle cases where x==y or x==0, etc
+				// The sort/unique will
+				// handle cases where x==y or x==0, etc.
+				// A bit lazy and inefficient, though.
 				Coord a;
 				a = make_tuple(x,y,z); LP.push_back(a);
-				//a = make_tuple(x,y,-z); LP.push_back(a);
-				//a = make_tuple(x,-y,z); LP.push_back(a);
-				//a = make_tuple(x,-y,-z); LP.push_back(a);
 				a = make_tuple(-x,y,z); LP.push_back(a);
-				//a = make_tuple(-x,y,-z); LP.push_back(a);
-				//a = make_tuple(-x,-y,z); LP.push_back(a);
-				//a = make_tuple(-x,-y,-z); LP.push_back(a);
-
 				a = make_tuple(y,x,z); LP.push_back(a);
-				//a = make_tuple(y,x,-z); LP.push_back(a);
-				//a = make_tuple(y,-x,z); LP.push_back(a);
-				//a = make_tuple(y,-x,-z); LP.push_back(a);
 				a = make_tuple(-y,x,z); LP.push_back(a);
-				//a = make_tuple(-y,x,-z); LP.push_back(a);
-				//a = make_tuple(-y,-x,z); LP.push_back(a);
-				//a = make_tuple(-y,-x,-z); LP.push_back(a);
 			}
 		}
 	}
@@ -131,190 +108,21 @@ int getLatticePoints()
 
 void mirrorLPs()
 {
-	// Would probably be slightly quicker to do this
-	// in getLPs
-	size_t LPsize = LP.size();
-	for(size_t i=0; i<LPsize; ++i)
-	{
-		Coord mirror = LP[i];
-		if (get<0>(mirror) != 0)
-		{
-			get<0>(mirror) *= -1;
-		//	LP.push_back(mirror);
-		}
-
-		
-	}
-	// Now sort
+	// Mirroring of the points is now done as they
+	// are generated. I left the sort/unique code here, though.
 	sort(LP.begin(), LP.end());
 	auto it = unique(LP.begin(), LP.end());
 	LP.resize( it - LP.begin() );
-
-	//for(auto itt=LP.begin(); itt != LP.end(); ++itt)
-	//	cout << *itt;
-	//cout << endl;
 }
-
-#if 0
-void getLatticePoints_SLOW()
-{
-	// Find all lattice points on sphere of radius 7
-	LP.clear();
-	// In mathlab this is r(k, n^2)
-	// ie number of ways to get sum of k==3 squares == n^2
-	//
-	// This is the slow way!
-	// Suspect we can optimise, but not massively improve.
-	// eg do a=0, b=a, c=b, then perm results afterwards
-	// eg do break early once r^2 is exceeded.
-	// Must be some other logic?
-	for(int a=0; a<=r; ++a)
-	{
-		for(int b=0; b<=r; ++b)
-		{
-			for(int c=0; c<=r; ++c)
-			{
-				if ((a*a)+(b*b)+(c*c)==(r*r))
-				{
-					Coord lp = make_tuple(a,b,c);
-					LP.push_back(lp);
-
-					// Add -ve z ones, too
-					if (a != 0)
-					{
-						Coord lpz = make_tuple(-a,b,c);
-						LP.push_back(lpz);
-					}
-				}
-			}
-		}
-	}
-	//cout << "no of lattice pts = " << LP.size() << endl;
-
-	// Sort in order of descending Z so we can start search at north pole
-	sort(LP.begin(), LP.end(), greater<Coord>());
-
-	//for_each(LP.begin(), LP.end(), [&](Coord c)
-	//{
-	//	cout << c << endl;
-	//});
-}
-#endif
-
-#if 0
-double minDistance( vector<int> route, double distanceSoFar )
-{
-	// See if final coord on route is an end point
-	int lastPoint = route.back();
-	Coord &lastCoord = LP[lastPoint];
-	// if it is, we're done at this depth
-	if (get<0>(lastCoord) == -r)
-		return distanceSoFar;
-
-	// Find closest next point to current lastCoord
-	// This is done recursively, rather than greedily
-	double minDist = (r*r);
-	for(int i=lastPoint+1; i<LP.size(); ++i)
-	{
-		// If z doesn't decrease then no need to search that direction.
-		// (Seems to be correct!))
-		if (get<0>(lastCoord) == get<0>(LP[i]))
-			continue;
-
-		route.push_back(i);
-		double dist = minDistance(route, distanceSoFar + risk(r, distance(r, lastCoord, LP[i])));
-		if ( dist < minDist)
-		{
-			minDist = dist;
-		}
-		route.pop_back();
-	}
-	return minDist;
-}
-#endif
 
 double Dijkstra()
 {
 	double r2 = static_cast<double>(r*r);
 
 	vector<double> cost(LP.size(), r2);
-	vector<int> previous(LP.size(), -1);
 
-	// Starting node is 0
-	cost[0] = 0.0;
-
-	// Q is all nodes in the graph
-	vector<int> Q;
-	// Bet there's a neat C++ way to do this!
-	for(size_t i=0; i<LP.size(); ++i)
-		Q.push_back(i);
-
-	while( Q.empty() == false )
-	{
-		// u = vertex in Q with smallest distance in dist
-		vector<int>::iterator uit = Q.end();
-		double minCost = r2;
-		for(auto it=Q.begin(); it != Q.end(); ++it)
-		{
-			if (cost[ *it ] < minCost)
-			{
-				minCost = cost[ *it ];
-				uit = it;
-			}
-		}
-
-		if (uit == Q.end())
-		{
-			// I think this only happens if there are 
-			// inaccessible vertices
-			// We'll get this because all "upwards" vertices are
-			// inaccessible
-			//cout << "u not found" << endl;
-			break;
-		}
-
-		int u = *uit;
-		// Remove u from Q
-		Q.erase(uit);
-		
-		// Can terminate if u is the target
-		if ( u == LP.size()-1 )
-		{
-			//cout << "Target reached" << endl;
-			break;
-		}
-
-		// For each neighbour v of u
-		// ie all lower nodes still in Q
-		for(size_t i=0; i<Q.size(); ++i)
-		{
-			int v = Q[i];
-			// This bit was causing a breakage for big values of r
-			// Turns out we DO need to go up-over sometimes
-			//if ( get<0>(LP[u]) > get<0>(LP[v]) )
-			//	continue;
-			
-			double alt = cost[u] + risk( GCdistance(LP[u], LP[v]) );
-			if (alt < cost[v])
-			{
-				// Relax (u,v,a)
-				cost[v] = alt;
-				previous[v] = u;
-				// Decrease key v in Q
-				// - no need, since my Q isn't ordered
-			}
-		}
-	}
-	//cout << "Finished: " << r << endl;
-
-	return cost[ LP.size()-1 ];
-}
-
-double Dijkstra_Set()
-{
-	double r2 = static_cast<double>(r*r);
-
-	vector<double> cost(LP.size(), r2);
+	// Don't need (or use) this. It could be used to re-create
+	// the path once we're done, though.
 	vector<int> previous(LP.size(), -1);
 
 	// Starting node is 0
@@ -330,7 +138,6 @@ double Dijkstra_Set()
 	while( Q.empty() == false )
 	{
 		// u = vertex in Q with smallest distance in dist
-
 		pair<double, int> up = *Q.begin();
 		
 		int u = up.second;
@@ -339,19 +146,15 @@ double Dijkstra_Set()
 		
 		// Can terminate if u is the target
 		if ( u == LP.size()-1 )
-		{
-			//cout << "Target reached" << endl;
 			break;
-		}
 
 		// For each neighbour v of u
 		// ie all lower nodes still in Q
+		// Could trim this to, say, nodes within a certain distance
 		for(size_t i=0; i<Q.size(); ++i)
 		{
 			pair<double, int> vp = Q[i];
 			int v = vp.second;
-			//if ( get<0>(LP[u]) > get<0>(LP[v]) )
-			//	continue;
 			
 			double alt = cost[u] + risk( GCdistance(LP[u], LP[v]) );
 			if (alt < cost[v])
@@ -361,38 +164,16 @@ double Dijkstra_Set()
 				previous[v] = u;
 				// Decrease key v in Q
 				Q[i] = make_pair(alt, v);
-				
-				
 			}
 		}
 		// Is this really slow?
-				sort(Q.begin(), Q.end());
+		// Not the best implementation of Dijksta.
+		// Should try using a set to hold Q
+		sort(Q.begin(), Q.end());
 	}
-	//cout << "Finished: " << r << endl;
 
 	return cost[ LP.size()-1 ];
 }
-#if 0
-// Try some routes out
-void test02()
-{
-	// This gets stuck at r=15, which is 44 LPs.
-	// So, need to improve search
-	// As well as needing to improve LP generation.
-	for( r=1; r<20; ++r )
-	{
-		cout << "Generating LPs: ";
-		getLatticePoints();
-		cout << LP.size() << endl;
-
-		cout << "Searching route" << endl;
-		vector<int> route;
-		route.push_back(0);
-		double d=minDistance( route, 0.0 );
-		cout << "r=" << r << " d=" << d << endl;
-	}
-}
-#endif
 
 void test03()
 {
@@ -401,10 +182,9 @@ void test03()
 	for(int n=1; n<=15; ++n)
 	{
 		r=twoPow-1;
-		r=4681;
 		getLatticePoints();
 		mirrorLPs();
-		double dijk = Dijkstra_Set();
+		double dijk = Dijkstra();
 		dsum += dijk;
 		cout << "n=" << n << " r=" << twoPow - 1 << " lp=" << LP.size() << " d="
 			<< setprecision(15) << dijk << endl;
@@ -415,8 +195,6 @@ void test03()
 
 int main()
 {
-	cout << numeric_limits<unsigned long long>::max() << endl;
 	test03();
-
 	return 0;
 }
