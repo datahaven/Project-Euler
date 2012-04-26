@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Euler_42", "Euler_42.vcxproj", "{E99D281C-65C4-4F52-9B63-F811C1AAFEDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E99D281C-65C4-4F52-9B63-F811C1AAFEDE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E99D281C-65C4-4F52-9B63-F811C1AAFEDE}.Debug|Win32.Build.0 = Debug|Win32
+		{E99D281C-65C4-4F52-9B63-F811C1AAFEDE}.Release|Win32.ActiveCfg = Release|Win32
+		{E99D281C-65C4-4F52-9B63-F811C1AAFEDE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
