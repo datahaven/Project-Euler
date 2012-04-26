@@ -1,0 +1,254 @@
+The number, 197, is called a circular prime because all rotations 
+of the digits: 197, 971, and 719, are themselves prime.
+
+There are thirteen such primes below 100: 
+2, 3, 5, 7, 11, 13, 17, 31, 37, 71, 73, 79, and 97.
+
+How many circular primes are there below one million?
+
+===
+
+This sounds like a job for J!
+
+
+_4 p: y is the next prime smaller than y
+_4 p: 1000000 is 999983
+
+_1 p: y is the no. of primes less than y
+ _1 p: 1000000
+78498
+
+p: 78497 is 999983
+
+p: i.78498 is all primes up to and including 999983
+as shown by doing {: p: i.78498 which tails the list.
+
+1 p: y is 1 if and only if y is prime.
+
+|. rotates the char
+   0 |. 'abcd'
+abcd
+   1 |. 'abcd'
+bcda
+   2 |. 'abcd'
+cdab
+   3 |. 'abcd'
+dabc
+  
+also works on 2 |. 1 2 3 giving 3 1 2 but note that it
+will leave a single number (eg 1 |. 197) as it was, so we need
+to split our number into digits
+
+i. #'abcd'
+0 1 2 3
+
+
+I want to do something like 0 1 2 3 |. 'abcd' to produce
+all rotations of abcd but I can't get it to work. It is because
+|. rank looks like this:
+ |. b. 0
+_ 1 _
+
+|.&'abcd' 1
+bcda
+This holds the y operand of |. constant while we apply it to
+multiple right values. Unfortunately rank 1 means this doesn't
+work for |.&'abcd' 0 1 2 which gives length error.
+
+OK, tried the double quote Rank operator (conjunction?)
+
+allcycles =. 3 : '|.&y"0 i.#y'
+
+Now we can call allcycles 'abcd' and get all cycles or
+allcycles 0 1 2 and get
+0 1 2
+1 2 0
+2 0 1
+
+Next we need to get it to work on our list of primes.
+Say t=. i 2 3 which gives
+0 1 2
+3 4 5
+
+We can do allcycles"1 t to get
+0 1 2
+1 2 0
+2 0 1
+
+3 4 5
+4 5 3
+5 3 4
+
+So, t is a 2d array but I don't think this is the way to go as we
+may want the dimensions to be different lengths. I suspect this
+may be where we do the box/unbox thing.
+Sample flow might be:
+Turn our list of primes into a boxed list of digits of primes.
+Process each box in turn.
+
+Splitting number into digits:
+123
+   #123
+1
+   #0":123
+3 
+
+allcycles 0":123
+123
+231
+312
+
+'abcd';'efgh'
++---------+
+¦abcd¦efgh¦
++---------+
+
+   allcycles each 'abcd';'efgh'
++---------+
+¦abcd¦efgh¦
+¦bcda¦fghe¦
+¦cdab¦ghef¦
+¦dabc¦hefg¦
++---------+
+For cool points, swap each with &.>
+allcycles &.> 'abcd';'efgh'
++---------+
+¦abcd¦efgh¦
+¦bcda¦fghe¦
+¦cdab¦ghef¦
+¦dabc¦hefg¦
++---------+
+
+;/ 0 1 2 
++-----+
+¦0¦1¦2¦
++-----+
+Boxes up our list of primes
+
+#0":"0 (123 456)
+2
+ie we have made a list of two strings of digits
+
+allcycles 0":"0 (123 456)
+123
+456
+
+456
+123
+Shows us showing all cycles of the two rows, so isn't what we
+want.
+
+allcycles each ;/0":"0 (123 456)
++-------+
+¦123¦456¦
+¦231¦564¦
+¦312¦645¦
++-------+
+But this is!
+allcycles each ;/0":"0 (123 456 6789)
++--------------+
+¦123 ¦456 ¦6789¦
+¦23 1¦56 4¦7896¦
+¦3 12¦6 45¦8967¦
+¦ 123¦ 456¦9678¦
++--------------+
+or maybe not ...
+
+ < @ ": "0 (123  456 78901)
+looks like a better bet as
+(f @ g) means (f @: g) applied 
+separately to each G-cell, that is, (f @: g)"G
+
+This gives:
+allcycles each < @ ": "0 (123  456 78901)
++-------------+
+¦123¦456¦78901¦
+¦231¦564¦89017¦
+¦312¦645¦90178¦
+¦   ¦   ¦01789¦
+¦   ¦   ¦17890¦
++-------------+
+
+For our primes list we get:
+
+allcycles &.><@":"0 p:i.78498
+where allcycles =. 3 : '|.&y"0 i.#y'
+
+====
+Next step:
+Take our potential prime cycles in boxes and first put them back
+to being numbers. Then check each one is prime.
+
+Tells you if all nos are prime
+   */1 p:2 3 5 8
+1
+   */1 p:2 3 5 8
+0
+
+
+0". > allcycles each < @ ": "0 (2 5 13)
+ 2  0
+ 5  0
+13 31
+Looks promising for unboxing and converting back to digits.
+Zeros are fillers from when some boxes have more rows than others
+
+2". > allcycles each < @ ": "0 (2 5 13)
+Will specify 2 as a filler, which means our prime test will
+return true
+
+1 p:2". > allcycles each < @ ": "0 (2 5 13 19)
+1 1
+1 1
+1 1
+1 0
+
+
+b =. 1 p:2". > allcycles each < @ ": "0 (2 5 13 19)
+   b
+1 1
+1 1
+1 1
+1 0
+   */"1 b
+1 1 1 0
+How do we combine these two to remove b?
+
+(*/"1) 1 p:2". > allcycles each < @ ": "0 (2 5 13 19)
+1 1 1 0
+
+
+1 1 1 0 # (2 5 13 19)
+2 5 13
+
+How do we combine this with the initial primes list?
+
+
+((*/"1) 1 p:2". > allcycles each < @ ": "0 p:i.78498 )# p:i.78498
+
+There must be a nice way to remove the duplication?
+
+
+#((*/"1)1 p:2".> allcycles &.><@":"0 p:i.78498)#p:i.78498
+
+Answer: 55
+
+
+
+Example Code:
+
+>([:{: ]#~ (=|.&.>)) <@":"0 /:~(0:-.~[:,>:/**/)~(i.100)-.~i.1000
+Find largest palindromic no. formed by product of two
+three digit numbers
+
+ x:*/{.(#~ 1000"_=+/"1)(, +&.*:/)"1,/,"0/~1+i.1000
+Find the only Pythagorean triplet, {a, b, c}, for which a + b + c = 1000.
+31875000
+??? - I don't think it does do this!
+
++/"."0":2^1000x
+Sum of digits of 2^1000
+
+ 1+#({: , +/)`]@.(1000"_ <: #@":@{:)^:(<_) 1 1x
+4782 
+First term in fib seq to contain 1000 digits
