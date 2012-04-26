@@ -1,0 +1,30 @@
+Triangle Numbers
+----------------
+
+This is J programming language
+
+divisor_count =. 3 : '*/ 1 + (_ q: y) -. 0'
+triangle =. 3 : ' +/ 1+i.y'
+dc_of_t =. 13 : 'divisor_count @: triangle y'
+
+dc_of_t"0 (6 7)
+4 6
+
+
+
+  >./  dc_of_t"0 (1+i.20000)
+
+(500 <  dc_of_t"0 (1+i.20000)) # (1+i.20000)
+12375 14399 16575 17199 18095
+   triangle 12375
+76576500
+
+"Pro" version (not by me):
+
+In J, the function foo below implements "Number of Divisors"
+
+foo=:[: */ 1: + [: +/"1 =@q:
+
+and the following expression yields the answer in 0.14 seconds.
+
+{.(500 < foo"0 t)#t=:+/\>: i.13000 
