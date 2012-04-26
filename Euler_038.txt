@@ -1,0 +1,54 @@
+Euler 38 Notes
+http://projecteuler.net/index.php?section=problems&id=38
+
+Code in J
+
+
+Millionth lexicographic permutation of the digits 0 .. 9
+10x#.999999 A. i.10
+
+999999 A. i.10 does the job, and 10x#. sticks the separate digits 
+back into a number form
+
+Gives all permutations of digits 1 - 9:
+(i.!9) A.1 2 3 4 5 6 7 8 9
+
+!9 is 362880, so not too many to evaluate.
+
+Even less since we know answer is >= 918273645
+(Only 40320 different perms)
+(40319 40320) A. 9 1 8 2 7 3 6 4 5
+
+
+Used trial and error to eliminate three digit answers
+(ie 987 * 1, * 2, etc)
+
+Then looked over all possible four digit answers
+
+Used C++ in the end:
+
+cout << "Euler 233 - Adrian Dale" << endl;
+
+	for( int i=9000; i<9401; ++i)
+	{
+		cout << i << 2*i << endl;
+	}
+
+Then "v-grepped" for the answer: 932718654
+
+=============
+
+a =: 1 + i.9
+b =: 10 + i.100
+c =: 100 + i.1000
+d =: 1000 + i.10000
+e =: 10000 + i.100000
+f =: 100000 + i.1000000
+
+=================
+
+
+
+
+
+
