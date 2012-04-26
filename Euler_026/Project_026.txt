@@ -1,0 +1,39 @@
+Euler 26
+
+Need a fn that takes an input n and the previous carry
+and applies it to the next digit (which we know is zero)
+(or fn could take a digit position, too and look up the next digit,
+tehn it doesn't need to return carry as it can directly modify the
+output number
+
+
+This version uses the above direct modify idea but only sort of works.
+I don't think you can guarantee execution order for the side effects.
+NB. oo for One Over
+NB. x oo y gives the xth digit of 1/y
+oo =: 4 : 0
+dd =. x{d
+
+remainder =. y | dd
+div =. <. dd % y
+
+NB. Modify next digit of d to add in the carry
+nd =. (1+x){d
+nd =. nd + remainder * 10
+d =: nd ((1+x)})d
+NB. return div
+div
+)
+
+This project works so far. I just need a way to find out the longest
+sequence of recurring digits in the output.
+
+ 1 4 2 8 5 7 i. doDiv 7
+0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 2 3 3 3 0 1 ...
+   1 4 2 8 5 7 i. doDiv 7
+0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 ...
+   
+When I've got the right sequence then the difference between all the
+digits of that sequence length is 1.
+
+Only need to find first repetition. Does that help?

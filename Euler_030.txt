@@ -1,0 +1,58 @@
+Project 30 - The powers of five one
+
+
+===
+
+List of boxes of strings of chars:
+ <@":"0 (123 456)
+
+List of digits from string of digits:
+"."0 '123'
+
+"."0 each <@":"0 (123 456)  
++-----------+
+¦1 2 3¦4 5 6¦
++-----------+
+
+> +/ each ^&4 each "."0 each <@":"0 (123 456 1634 8208)
+98 2177 1634 8208
+
+d =. 10 + i.10000
+((> +/ each ^&4 each "."0 each <@":"0 d) = d) # d
+1634 8208 9474
+
++/((> +/ each ^&4 each "."0 each <@":"0 d) = d) # d
+19316
+
+Now fix code to say ^5 and work out a possible upper
+bound on no. of ints to try.  Less than 10000000 which
+ran out of memory and locked my computer up for ages. Doh!
+d =. 10 + i.10000
++/((> +/ each ^&5 each "."0 each <@":"0 d) = d) # d
+
+d =. 1500000 + i.1500000
+
+
+d =. 10+i.250000
+   ((> +/ &.> ^&5 &.> "."0 &.> <@":"0 d) = d) # d
+4150 4151 54748 92727 93084 194979
+
+Answer is the sum of the above: 443839
+
+Example Code:
+
+>([:{: ]#~ (=|.&.>)) <@":"0 /:~(0:-.~[:,>:/**/)~(i.100)-.~i.1000
+Find largest palindromic no. formed by product of two
+three digit numbers
+
+ x:*/{.(#~ 1000"_=+/"1)(, +&.*:/)"1,/,"0/~1+i.1000
+Find the only Pythagorean triplet, {a, b, c}, for which a + b + c = 1000.
+31875000
+??? - I don't think it does do this!
+
++/"."0":2^1000x
+Sum of digits of 2^1000
+
+ 1+#({: , +/)`]@.(1000"_ <: #@":@{:)^:(<_) 1 1x
+4782 
+First term in fib seq to contain 1000 digits
