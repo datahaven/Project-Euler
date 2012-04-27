@@ -1,0 +1,40 @@
+
+I really enjoyed solving this problem, although I found it rather tough and a 
+bit sneaky, too! (No odd-N solutions, other than the one given, for example.) 
+
+I wrote a lot of code to solve this that didn't make it into the final solution:
+ - a solver that tried all possible solutions 
+   (to see if there was a pattern in the smaller N solutions). 
+- an algorithm that row-reduced an N*N by N*N matrix. 
+  It also worked for odd-N where the starting pattern had a solution. 
+- code to check there were no more odd-N solutions once I'd realised there weren't 
+  likely to be any. 
+- optimised versions of the matrix-multiplication solution that were still too slow. 
+- a solution that xor'd bitsets of each puzzle row with the parity of the columns. 
+- Finally an O(N) solution but all the bit fiddling was too slow. 
+
+These attempts are in the numbered source files.
+
+The final C++ code is O(N) and runs in just under six minutes. 
+It uses an optimised version of the xoring/bit counting that allows for the fact 
+it only needs to do the xor for disks that are on the circle. 
+
+This code is in file Euler_331.cpp
+
+solutions.txt contains some example solutions for small puzzle sizes.
+Make moves (in any order) wherever a 1 appears.
+
+Note that as I no longer have Boost installed I haven't re-tested this code.
+However, it should work still.
+
+Some useful web resources:
+
+A handy little tool someone's made: http://www.eelvex.net/games/pe-331-game/
+
+Jaap's puzzle page discussing the very similar Lights Out puzzle
+http://www.jaapsch.net/puzzles/lomath.htm
+
+This paper discusses our exact problem:
+http://cmup.fc.up.pt/cmup/inigma/fun/jogos/jogo_das_luzes/jogo_das_luzes.pdf
+
+Adrian
