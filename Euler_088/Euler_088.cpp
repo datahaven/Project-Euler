@@ -14,8 +14,7 @@ You have earned 1 new award:
 
 // Answer = 7587457
 
-// This is the messy version of the code, including all of my scrap code that I wrote
-// to get ideas.
+// This is the messy version of the code, but with the unused bits removed
 
 #include <iostream>
 #include <vector>
@@ -27,133 +26,6 @@ using namespace std;
 
 const int KMAX = 12000;
 int bestkValues[KMAX+2];
-
-// I have no idea how to solve this!
-// Writing some noddy code to work out some more values
-void test01()
-{
-	const int NMAX = 15;
-	for(int a=1; a<NMAX; ++a)
-		for(int b=a; b<NMAX; ++b)
-			for(int c=b; c<NMAX; ++c)
-				for(int d=c; d<NMAX; ++d)
-					for(int e=d; e<NMAX; ++e)
-						for(int f=e; f<NMAX; ++f)
-							for(int g=f; g<NMAX; ++g)
-							{
-								for(int h=g; h<NMAX; ++h)
-								{
-									for(int i=h; i<NMAX; ++i)
-									{
-										for(int k=i; k<NMAX; ++k)
-										{
-										if (a+b+c+d+e+f+g+h+i+k == a*b*c*d*e*f*g*h*i*k)
-										{
-											cout << "ps=" << a+b+c+d+e+f+g+h+i+k << endl;
-											cout << a << " " << b << " " << c << " "
-												<< d << " " << e << " " << f << " "
-												<< g << " " << h << " " << i << " " << k << endl;
-										}
-										}
-									}
-								}
-							}
-
-}
-
-void combs(int digitNo, int maxDigits, int *digits)
-{
-	cout << "combs(" << digitNo << ", " << maxDigits << ", ";
-	int product = 1;
-	int sum = 0;
-	for(int i=0; i<maxDigits; ++i)
-	{
-		product *= digits[i];
-		sum += digits[i];
-		cout << digits[i] << " ";
-	}
-	int k=maxDigits-sum +product;
-	cout << ")" << " sum=" << sum << " prod=" << product << endl;
-
-	
-
-
-	for(int i=0; i<maxDigits; ++i)
-	{
-		int index = maxDigits - 1 - i;
-		while( digits[index] < digitNo - i)
-		{
-			digits[index]++;
-			
-			product = 1;
-			sum = 0;
-			for(int i=0; i<maxDigits; ++i)
-			{
-				product *= digits[i];
-				sum += digits[i];
-			}
-			
-			
-			for(int j= index + 1; j<maxDigits; ++j)
-			{
-				digits[j] = digits[j - 1] /*+ 1*/;
-			}
-			combs(digitNo, maxDigits, digits);
-		}
-	}
-}
-
-// Find all factorisations of length N
-void allNLengthFacs(int N)
-{
-	int Digits[20];
-	for(int i=0; i<N; ++i)
-		Digits[i] = 1;
-	
-	const int NMAX = 15;
-
-	combs(3, 3, Digits);
-/*	
-		int product = 1;
-		int sum = 0;
-		for(int i=0; i<N; ++i)
-		{
-			product *= Digits[i];
-			sum += Digits[i];
-		}
-		int k=N-sum+product;
-		*/
-
-	
-}
-
-bool incDigits(int maxDigits, int maxDigitVal, int *digits)
-{
-	int incIndex = maxDigits-1;
-	
-	digits[incIndex]++;
-	
-	bool carry = digits[incIndex] > maxDigitVal;
-
-	while(carry)
-	{
-		incIndex--;
-		if (incIndex >= 0)
-		{
-			digits[incIndex]++;
-			carry = digits[incIndex] > maxDigitVal;
-		}
-		else
-			return false; // overflow
-
-		for(int j=incIndex+1; j<maxDigits; ++j)
-		{
-			digits[j] = digits[j-1];
-		}
-	}
-	
-	return true;
-}
 
 bool incDigitsII(int maxDigits, int maxDigitVal, int *digits)
 {
@@ -199,41 +71,6 @@ bool incDigitsII(int maxDigits, int maxDigitVal, int *digits)
 	return true;
 }
 
-
-void test02()
-{
-	// How to make the generic version of this?
-	for(int a=1; a<4; ++a)
-		for(int b=a; b<4; ++b)
-			for(int c=b; c<4; ++c)
-				cout << a << " " << b << " " << c << endl;
-	// Easy - see incDigits
-	cout << "===" << endl;
-
-	int digits[50];
-	for(int i=0; i<sizeof(digits)/sizeof(digits[0]); ++i)
-	{
-		digits[i] = 1;
-	}
-
-	int callcount = 0;
-	do
-	{
-		++callcount;
-
-		int product = 1;
-		for(int i=0; i<3; ++i)
-		{
-	//		cout << digits[i] << " ";
-			product *= digits[i];
-		}
-	//	cout << " prod=" << product << endl;
-
-	} while(incDigitsII(15, 24000, digits));
-
-	cout << "callcount=" << callcount << endl;
-}
-
 void test03()
 {
 	int digits[15];
@@ -269,7 +106,7 @@ void test03()
 		++digitCount;
 	}
 
-	cout << "callcount=" << callcount << endl;
+	//cout << "callcount=" << callcount << endl;
 }
 
 int main()
@@ -281,16 +118,7 @@ int main()
 
 	test03();
 
-	/*
-	int sum = 0;
-	for(int k=2; k<=10; ++k)
-	{
-		cout << "k=" << k << " => " << bestkValues[k] << endl;
-		sum += bestkValues[k];
-	}
-	cout << "Answer=" << sum << endl;
-	*/
-	// No! Needs to be sum of unique bestkValues
+	// Needs to be sum of unique bestkValues
 
 	vector<int> kVector(bestkValues+2, bestkValues+KMAX+1);
 	sort(kVector.begin(), kVector.end());
@@ -299,7 +127,4 @@ int main()
 
 	int sum = accumulate(kVector.begin(),kVector.end(),0);
 	cout << "Answer=" << sum << endl;
-
-	//allNLengthFacs(3);
-	
 }
