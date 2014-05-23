@@ -1,0 +1,131 @@
+Euler 364 - Comfortable Distance Notes
+
+I'd love to publish a diary of how I solved this.
+Not really allowed to but I think I'll keep notes anyway.
+
+Step one is looking at the puzzle.
+Get fooled by the numbers which make it look like a divide/conquer problem.
+(Like the recent Knights one)
+
+Unusually, my first attempt at a solution was d/c which didn't match the
+given clues. Reason being that you can't divide problem in half as you need
+to fill seats in specific order
+This is solve()
+
+I write the naive solution next as it helps me understand the problem.
+Sometimes euler problems are a bit big for pen/paper to uncover all the nuances.
+naive sol is solveII() which produces results that match OEIS A192008
+Needless to say it only works for small numbers before it starts to take
+too long to run.
+
+I realise that solution probably involves lots of counting based on similar cases.
+I only need to solve for one case, then use nPr to count all possible solutions.
+
+I write solveIII which for N counts all possible ways to fill the chairs, taking only
+seats with no neighbours. Again, it's a quick/dirty recursive solution (using
+vector<bool> again - yuck!) and hacky code to store unique solutions in a set.
+I'm pretty sure I've got a simple way to generate the unique sols but am concerned about
+getting confused by cases at the ends of rows.
+Results match a seq in OEIS that seems to confirm my idea for doing this without
+recursing.
+Pen paper test establishes that I need to consider two cases - where first seat
+is taken, and where it is empty. There are no other possibilities.
+
+So, give A=*o and B=*oo (with *==seated o==empty)
+I need to find how many ways to combine A and B to add up to N+1 and N to cover the 
+two cases. Or, at least I think I do - that's something I can now check against my
+earlier code.
+test04 is a quick crude bit of code that lets me establish the pattern.
+This bit is very like stuff in the Knights problem.
+In fact I checked and code is same as in test01() in Euler_469A.cpp 
+
+Found the basic maths I needed here:
+http://cse.unl.edu/~lksoh/Classes/CSCE235_Spring03/tutorials/permutations/berberov/page.html
+
+test05 needs to be called for N and for N+1
+eg for N==5:
+A_Start=1 B_Start=1 v=2 all=4
+
+A_Start=0 B_Start=2 v=1 all=2
+A_Start=3 B_Start=0 v=1 all=6
+
+Adding up the all values says there are 12 solutions which matches my solveIII(5) output.
+Also adding up the v values gives the unique sol count, which also matches solveIII output.
+(I tested other values, too!)
+
+Summary so far - test05 has a loop which steps through each possible split of N into 2 and 3-sized
+sets of seats. A and B are the number of 2 and 3 sets respectively.
+
+So, now for each of these I need to know how many ways the seats can be filled where one adjacent
+seat is filled. I think it is basically 2 ways for each B but need to see if the ends of the
+rows cause special cases. I'm pretty sure they do!
+
+I wrote test05 by slowly debugging/thinking my way through the special cases caused by the ends
+until my results now agree with the results from solveII (aka the naive version)
+It works up to about n==15 before it overflows. If I ignore that it fails around 25, which I suspect
+is due to the factorial function overflowing, too.
+
+Next task is to mod-ify (ha ha - geddit!) the code to work mod 100000007 as requested in the problem.
+
+On my TODO list is to write a c++ integer template for automatically doing this. In fact I feel like I
+did do this but can't remember where it is if I did.
+This article has lots of helpful tips:
+http://stackoverflow.com/questions/4421706/operator-overloading
+
+Not yet sure if performance will be good enough but I have options for improving it.
+In particular, I suspect caching fac results could be worthwhile.
+
+test07 is same as test05 but using mod.
+Looks like MINT may be more trouble that it is worth!
+Hmmm ... brainless approach of just chucking % MODVAL everywhere looks like it isn't working!
+
+Problem is that the variants variables need a division to calculate them.
+Luckily our MODVAL is prime, so some shortcuts work:
+http://stackoverflow.com/questions/19739492/calculating-ncr-mod-p-efficiently-when-n-is-very-large
+
+So far it works up to i=15 but don't know after that. It gives wrong answer for 1000
+It also takes too long to run - OK for 10000, but too slow beyond that, even with my factorial
+caching code. It could be permCountMod that is now too slow? Or just that the algorithm is too slow?
+Could cache modInverse values if necessary? twoPowMod will also be slow when called repeatedly for
+big numbers.
+It does finish for i=100000 (takes 1min), so only need i=500000 and double the answer. (Oh, hang on, maybe that doesn't
+work?)
+This is probably do-able in
+five or ten mins? Or maybe a lot more, since I think algorithm is probably geometric complexity.
+I stopped it 20mins into the 500000 run - this isn't fast enough. Need a better algorithm.
+I can speed the factorial up a bit by precomputing it, rather than caching.
+
+BUT first I need to get it working for i=1000
+Is it an algorithm bug or a coding error?
+I think I've missed a MOD somewhere, but can't see anywhere. Or maybe I've misjudged the effect of MOD?
+However if I get answers MOD a tiny prime they match up to 15. So maybe mod is OK? Or it only fails on
+big numbers? I've looked for overflows (ie when my +ve nos turn -ve) but can't see any
+
+Could I find the bug by using a bignum library to get some accurate answers for bigger values?
+I used PARI to calculate permCountMod(8, 9) and my code gives 24310 and
+correct answer is 24310
+However, for bigger values the answers differ. eg 1000, 380 s/b 23544564
+Fixed it! A bug in my permCountMod which was missing a % MODVAL.
+Code now works for i=1000
+
+Now looking at speedups - changing fac map to precomputed vector took the 100000 time
+from 1min down to 17 seconds.
+
+I'm sure there's something in the algorithm I could speed up. There may be a pattern? Lots of symmetry, too?
+Good news, though, is that I can go back to smaller cases to examine the data, as I know my algorithm
+is good so far.
+
+Wow! Job done! I fixed twopowmap to pre-compute and code finished in two seconds
+This would have shown up nicely if I'd used a profiler!
+
+Final answer is 44855254
+
+Congratulations, the answer you gave to problem 364 is correct.
+
+You are the 388th person to have solved this problem.
+
+You have earned 1 new award:
+
+    Ultimate Decimator: Solve one in every ten problems from problems 1 to 400
+	
+	
