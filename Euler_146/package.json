@@ -1,0 +1,15 @@
+{
+  "name": "project_euler_146",
+  "version": "1.0.0",
+  "description": "Project Euler 146",
+  "main": "euler_146.js",
+  "scripts": {
+    "start": "node euler_146.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adrian Dale",
+  "license": "ISC",
+  "dependencies": {
+    "miller-rabin": "^4.0.0"
+  }
+}
