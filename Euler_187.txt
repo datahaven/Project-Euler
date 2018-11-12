@@ -1,0 +1,27 @@
+Project Euler 187
+Semiprimes
+==========
+
+12/11/2018
+----------
+
+I solved this one sometime between 2010 and 2011 but can't find any code for it.
+I wonder if I cheated? It is very possible that I found the below information and
+simply didn't bother to write any code.
+
+Definition of a semiprime here:
+
+http://mathworld.wolfram.com/Semiprime.html
+This page gives a formula for number of semi-primes less than or equal to n
+
+It then helpfully points to OEIS for the sequence of numbers of semiprimes less than 10^n
+for n=1, 2, ...
+
+http://oeis.org/A066265
+
+Pick out the one for n==8 and that's your answer!
+
+--
+
+I think the code is probably a pretty straightforward double-loop through all primes
+less than 10^8, multiplying them together and counting them if they are less than 10^8
